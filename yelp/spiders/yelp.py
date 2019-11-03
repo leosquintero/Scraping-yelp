@@ -7,7 +7,9 @@ class YelpSpider(Spider):
     name = "yelp"
     allowed_domains = ['www.yelp.com']
     # Defining the list of pages to scrape
-    start_urls = ["https://www.yelp.com/search?find_desc=Dog&find_loc=Boston%2C%20MA&start=" + str(1 * i) for i in range(0, 220)]
+    start_urls = ["https://www.yelp.com/search?find_desc=Dog&find_loc=Boston%2C%20MA&start=" + str(10 * i) for i in range(0, 220)] 
+    handle_httpstatus_list = [302]
+
 
     def parse(self, response):
         # Defining rows to be scraped
@@ -28,13 +30,12 @@ class YelpSpider(Spider):
             
 
         
-
-
             item = YelpItem()    
             item['name'] = name
             item['phone'] = phone
             item['area'] = area
             item['services'] = services
+            
             yield item
 
         
