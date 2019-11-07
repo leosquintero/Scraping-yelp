@@ -15,3 +15,6 @@ class YelpItem(scrapy.Item):
     phone = scrapy.Field()
     area = scrapy.Field()
     services = scrapy.Field()
+    link = scrapy.Field()
+    address = scrapy.Field()
+    website = scrapy.Field()
