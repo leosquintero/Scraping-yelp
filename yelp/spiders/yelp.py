@@ -8,7 +8,7 @@ class YelpSpider(Spider):
     name = "yelp"
     allowed_domains = ['www.yelp.com']
     # Defining the list of pages to scrape
-    start_urls = ["https://www.yelp.com/search?find_desc=Dog&find_loc=Boston%2C%20MA&start=" + str(10 * i) for i in range(0, 1)] 
+    start_urls = ["https://www.yelp.com/search?find_desc=Dog&find_loc=Boston%2C%20MA&start=" + str(10 * i) for i in range(0, 220)] 
     handle_httpstatus_list = [302]
 
 
@@ -27,7 +27,7 @@ class YelpSpider(Spider):
             area = row.xpath('.//p/span[@class = "lemon--span__373c0__3997G"]/text()').extract_first()
             
             # Scraping services they offer
-            services = row.xpath('.//a[@class="lemon--a__373c0__IEZFH link__373c0__29943 link-color--inherit__373c0__15ymx link-size--default__373c0__1skgq"]/text()').extract_first()
+            services = row.xpath('.//a[@class="lemon--a__373c0__IEZFH link__373c0__29943 link-color--inherit__373c0__15ymx link-size--default__373c0__1skgq"]/text()').extract()
             
             # Extracting internal link
             link = row.xpath('.//p/a/@href').extract_first()
@@ -43,15 +43,29 @@ class YelpSpider(Spider):
             item['link'] = link
 
 
-            yield item
+            yield scrapy.Request(link,
+                                 callback=self.parse_detail,
+                                 meta={'item': item})
 
-        def parse_detail(self, response):
-            item = response.meta['item']
-            address = response.xpath('.//*[@id="wrap"]/div[2]/div/div[1]/div/div[4]/div[1]/div/div[2]/ul/li[1]/div/strong/address/text()[1]').extract_first()
-            
-            website = response.xpath('//*[@id="wrap"]/div[2]/div/div[1]/div/div[4]/div[1]/div/div[2]/ul/li[4]/span[2]/a/@href').extract_first()
-            website = response.urljoin(website)
 
-            item['address'] = address
-            item['website'] = website
-            yield item
+    def parse_detail(self, response):
+        item = response.meta['item']
+        address = response.xpath('.//strong[@class = "street-address"]/address/text()').extract()
+        
+        website = response.xpath('.//li/span/a/text()').extract_first()
+        
+        reviews = response.xpath('.//div/span[@class = "review-count rating-qualifier"]/text()').extract_first()
+
+        stars = response.xpath('.//div/@title').extract_first()
+
+        lastrev = response.xpath('.//span[@class = "rating-qualifier"]/text()').extract_first()
+
+        categories = response.xpath('.//span[@class = "category-str-list"]/a/text()').extract()
+
+        item['address'] = address
+        item['website'] = website
+        item['reviews'] = reviews
+        item['stars'] = stars
+        item['lastrev'] = lastrev
+        item['categories'] = categories
+        yield item

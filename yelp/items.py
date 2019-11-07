@@ -18,3 +18,7 @@ class YelpItem(scrapy.Item):
     link = scrapy.Field()
     address = scrapy.Field()
     website = scrapy.Field()
+    reviews = scrapy.Field()
+    stars = scrapy.Field()
+    lastrev = scrapy.Field()
+    categories = scrapy.Field()
